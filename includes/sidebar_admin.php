@@ -1,9 +1,33 @@
+<?php 
+    // 1. Detectar página y ID
+    $currentPage = basename($_SERVER['PHP_SELF']); 
+    $spaceId = isset($_GET['id']) ? $_GET['id'] : null;
+
+    // 2. Mapeo de nombres (Esto después lo podés traer de tu Base de Datos)
+    $nombresEspacios = [
+        1 => 'Sala Silicon Valley',
+        2 => 'Desk Individual 04',
+        3 => 'Oficina Elon Musk',
+        4 => 'Sala de Podcast',
+        5 => 'Box de Llamadas 02',
+        6 => 'Lounge Creativo'
+    ];
+
+    // 3. Determinar qué texto mostrar
+    $esDetalle = ($currentPage == 'espacio_detalle.php');
+    $nombreAMostrar = ($esDetalle && isset($nombresEspacios[$spaceId])) 
+                      ? $nombresEspacios[$spaceId] 
+                      : 'Espacios';
+?>
+
 <style>
     :root {
-        --side-bg: #0b1120; /* Azul noche profundo */
+        --side-bg: #0b1120;
         --side-border: rgba(255, 255, 255, 0.05);
         --item-hover: rgba(99, 102, 241, 0.08);
         --active-gradient: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 100%);
+        --primary: #6366f1;
+        --text-muted: #94a3b8;
     }
 
     .sidebar {
@@ -16,44 +40,6 @@
         height: 100vh;
         position: sticky;
         top: 0;
-    }
-
-    /* --- ÁREA DE USUARIO (HARDCODEADA) --- */
-    .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--side-border);
-        border-radius: 18px;
-        margin-bottom: 2.5rem;
-    }
-
-    .user-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 14px;
-        background: var(--gradient); /* Usando el gradiente del global */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        color: white;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-
-    .user-info h4 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 0.95rem;
-        margin: 0;
-        color: #fff;
-    }
-
-    .user-info span {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        display: block;
     }
 
     /* --- LOGO --- */
@@ -72,6 +58,40 @@
         color: #fff;
         letter-spacing: -1px;
     }
+
+    /* --- ÁREA DE USUARIO --- */
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--side-border);
+        border-radius: 18px;
+        margin-bottom: 2.5rem;
+    }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: white;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .user-info h4 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.95rem;
+        margin: 0;
+        color: #fff;
+    }
+
+    .user-info span { font-size: 0.75rem; color: var(--text-muted); display: block; }
 
     /* --- NAVEGACIÓN --- */
     .nav-group { margin-bottom: 2rem; }
@@ -101,10 +121,15 @@
         position: relative;
     }
 
-    /* Estado Activo */
     .nav-link.active {
-        color: var(--primary);
+        color: #fff;
         background: var(--active-gradient);
+    }
+
+    /* Estilo especial cuando es un detalle dinámico */
+    .nav-link.active.is-detail {
+        color: var(--primary);
+        font-weight: 600;
     }
 
     .nav-link.active::after {
@@ -118,11 +143,7 @@
         box-shadow: 2px 0 10px var(--primary);
     }
 
-    .nav-link i {
-        font-size: 1.15rem;
-        width: 24px;
-        text-align: center;
-    }
+    .nav-link i { font-size: 1.15rem; width: 24px; text-align: center; }
 
     .nav-link:hover:not(.active) {
         background: var(--item-hover);
@@ -131,11 +152,7 @@
     }
 
     /* --- FOOTER --- */
-    .sidebar-footer {
-        margin-top: auto;
-        border-top: 1px solid var(--side-border);
-        padding-top: 1.5rem;
-    }
+    .sidebar-footer { margin-top: auto; border-top: 1px solid var(--side-border); padding-top: 1.5rem; }
 
     .appearance-box {
         display: flex;
@@ -159,13 +176,12 @@
         border-radius: 12px;
         transition: 0.3s;
     }
-
     .logout-btn:hover { background: rgba(239, 68, 68, 0.08); }
 </style>
 
 <aside class="sidebar">
     <div class="logo-container">
-        <div style="width: 35px; height: 35px; background: var(--gradient); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+        <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
             <i class="fas fa-layer-group"></i>
         </div>
         <span class="logo-text">WorkSpot</span>
@@ -182,24 +198,26 @@
     <nav class="nav-menu">
         <div class="nav-group">
             <p class="nav-label">Principal</p>
-            <a href="admin_home.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'admin_home.php' ? 'active' : '' ?>">
+            <a href="dashboard.php" class="nav-link <?= $currentPage == 'dashboard.php' ? 'active' : '' ?>">
                 <i class="fas fa-chart-line"></i> Dashboard
             </a>
-            <a href="espacios.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'espacios.php' ? 'active' : '' ?>">
-                <i class="fas fa-building-user"></i> Espacios
-            </a>
-            <a href="reservas.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'reservas.php' ? 'active' : '' ?>">
-                <i class="fas fa-calendar-check"></i> Reservas
+            
+            <a href="espacios.php" class="nav-link <?= ($currentPage == 'espacios.php' || $esDetalle) ? 'active' : '' ?> <?= $esDetalle ? 'is-detail' : '' ?>">
+                <i class="<?= $esDetalle ? 'fas fa-chevron-right' : 'fas fa-building-user' ?>" style="<?= $esDetalle ? 'font-size: 0.8rem;' : '' ?>"></i> 
+                <?= $nombreAMostrar ?>
             </a>
             
+            <a href="reservas.php" class="nav-link <?= $currentPage == 'reservas.php' ? 'active' : '' ?>">
+                <i class="fas fa-calendar-check"></i> Reservas
+            </a>
         </div>
 
         <div class="nav-group">
             <p class="nav-label">Comunidad</p>
-            <a href="usuarios.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'usuarios.php' ? 'active' : '' ?>">
+            <a href="usuarios.php" class="nav-link <?= $currentPage == 'usuarios.php' ? 'active' : '' ?>">
                 <i class="fas fa-user-group"></i> Usuarios
             </a>
-            <a href="soporte.php" class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'soporte.php' ? 'active' : '' ?>">
+            <a href="soporte.php" class="nav-link <?= $currentPage == 'soporte.php' ? 'active' : '' ?>">
                 <i class="fas fa-headset"></i> Soporte
             </a>
         </div>
@@ -207,7 +225,7 @@
 
     <div class="sidebar-footer">
         <div class="appearance-box">
-            <span style="font-size: 0.8rem; font-weight: 600; opacity: 0.8;">Modo Oscuro</span>
+            <span style="font-size: 0.8rem; font-weight: 600; opacity: 0.8; color: white;">Modo Oscuro</span>
             <div id="themeToggleAdmin" style="cursor: pointer; color: var(--primary);">
                 <i class="fas fa-moon"></i>
             </div>

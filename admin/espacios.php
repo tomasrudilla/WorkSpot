@@ -191,10 +191,15 @@
                         <i class="fas fa-coffee" title="Café Libre"></i>
                         <i class="fas fa-users" title="Cap: 12"></i>
                     </div>
-                    <div class="price">
-                        $55.00/h
-                        <button class="btn-edit"><i class="fas fa-pen"></i></button>
-                    </div>
+                   <div class="price">
+    $55.00/h
+    <div style="display: flex; gap: 8px;">
+        <button class="btn-edit"><i class="fas fa-pen"></i></button>
+        <a href="espacio_detalle.php?id=1" class="btn-add" style="padding: 8px 15px; text-decoration: none; font-size: 0.8rem;">
+            Ver Plano <i class="fas fa-cube"></i>
+        </a>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -211,9 +216,14 @@
                         <i class="fas fa-headset" title="Zona Silencio"></i>
                     </div>
                     <div class="price">
-                        $15.00/h
-                        <button class="btn-edit"><i class="fas fa-pen"></i></button>
-                    </div>
+    $55.00/h
+    <div style="display: flex; gap: 8px;">
+        <button class="btn-edit"><i class="fas fa-pen"></i></button>
+        <a href="espacio_detalle.php?id=1" class="btn-add" style="padding: 8px 15px; text-decoration: none; font-size: 0.8rem;">
+            Ver Plano <i class="fas fa-cube"></i>
+        </a>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -230,9 +240,14 @@
                         <i class="fas fa-snowflake" title="Climatización"></i>
                     </div>
                     <div class="price">
-                        $120.00/h
-                        <button class="btn-edit"><i class="fas fa-pen"></i></button>
-                    </div>
+    $55.00/h
+    <div style="display: flex; gap: 8px;">
+        <button class="btn-edit"><i class="fas fa-pen"></i></button>
+        <a href="espacio_detalle.php?id=1" class="btn-add" style="padding: 8px 15px; text-decoration: none; font-size: 0.8rem;">
+            Ver Plano <i class="fas fa-cube"></i>
+        </a>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -249,9 +264,14 @@
                         <i class="fas fa-video" title="Cámaras 4K"></i>
                     </div>
                     <div class="price">
-                        $40.00/h
-                        <button class="btn-edit"><i class="fas fa-pen"></i></button>
-                    </div>
+    $55.00/h
+    <div style="display: flex; gap: 8px;">
+        <button class="btn-edit"><i class="fas fa-pen"></i></button>
+        <a href="espacio_detalle.php?id=1" class="btn-add" style="padding: 8px 15px; text-decoration: none; font-size: 0.8rem;">
+            Ver Plano <i class="fas fa-cube"></i>
+        </a>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -267,9 +287,14 @@
                         <i class="fas fa-lightbulb" title="Luz de Video"></i>
                     </div>
                     <div class="price">
-                        $8.00/h
-                        <button class="btn-edit"><i class="fas fa-pen"></i></button>
-                    </div>
+    $55.00/h
+    <div style="display: flex; gap: 8px;">
+        <button class="btn-edit"><i class="fas fa-pen"></i></button>
+        <a href="espacio_detalle.php?id=1" class="btn-add" style="padding: 8px 15px; text-decoration: none; font-size: 0.8rem;">
+            Ver Plano <i class="fas fa-cube"></i>
+        </a>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -286,9 +311,14 @@
                         <i class="fas fa-users" title="Cap: 20"></i>
                     </div>
                     <div class="price">
-                        $30.00/h
-                        <button class="btn-edit"><i class="fas fa-pen"></i></button>
-                    </div>
+    $55.00/h
+    <div style="display: flex; gap: 8px;">
+        <button class="btn-edit"><i class="fas fa-pen"></i></button>
+        <a href="espacio_detalle.php?id=1" class="btn-add" style="padding: 8px 15px; text-decoration: none; font-size: 0.8rem;">
+            Ver Plano <i class="fas fa-cube"></i>
+        </a>
+    </div>
+</div>
                 </div>
             </div>
 

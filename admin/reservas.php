@@ -3,159 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WorkSpot Admin | Control de Reservas</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>WorkSpot Admin | Schedule Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root { 
             --bg: #030712; 
-            --sidebar: #0f172a; 
-            --surface: rgba(30, 41, 59, 0.45); 
+            --surface: rgba(30, 41, 59, 0.4); 
             --primary: #6366f1; 
+            --accent: #00f2ff;
             --text-main: #f8fafc; 
             --text-muted: #94a3b8; 
             --border: rgba(255, 255, 255, 0.08); 
             --success: #10b981;
-            --warning: #f59e0b;
             --danger: #ef4444;
-            --info: #0ea5e9;
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        main { flex: 1; padding: 2.5rem 4rem; overflow-y: auto; }
+        main { flex: 1; padding: 2rem 3rem; overflow-y: auto; }
 
-        /* --- Encabezado --- */
-        .header-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* --- Header --- */
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .header-flex h1 { font-family: 'Outfit'; font-size: 2rem; margin: 0; letter-spacing: -1px; }
+
+        /* --- Selector de Salones (Cards) --- */
+        .room-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2.5rem;
         }
 
-        .header-area h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; letter-spacing: -1px; }
-
-        /* --- Barra de Herramientas (Filtros y Búsqueda) --- */
-        .table-tools {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .room-card {
             background: var(--surface);
-            padding: 1rem 1.5rem;
-            border-radius: 18px;
             border: 1px solid var(--border);
-            margin-bottom: 1.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .search-wrapper {
-            position: relative;
-            width: 350px;
-        }
-
-        .search-wrapper i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .search-wrapper input {
-            width: 100%;
-            padding: 10px 15px 10px 45px;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: white;
-            outline: none;
-        }
-
-        .filter-tabs { display: flex; gap: 8px; }
-        .tab {
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            border-radius: 20px;
+            padding: 1.2rem;
             cursor: pointer;
-            border: 1px solid transparent;
-            color: var(--text-muted);
-            transition: 0.3s;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .tab.active { background: rgba(99, 102, 241, 0.1); color: var(--primary); border-color: var(--primary); }
-        .tab:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--text-main); }
 
-        /* --- Tabla Estilizada --- */
-        .table-container {
+        .room-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: transparent; transition: 0.3s;
+        }
+
+        .room-card.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .room-card.active::before { background: var(--primary); }
+
+        .room-card i { font-size: 1.5rem; color: var(--primary); margin-bottom: 1rem; display: block; }
+        .room-card h3 { margin: 0; font-family: 'Outfit'; font-size: 1.1rem; }
+        .room-card span { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* --- Layout de Calendario --- */
+        .calendar-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+            height: 600px;
+        }
+
+        /* Columna Izquierda: Widget Calendario */
+        .mini-calendar {
             background: var(--surface);
             border-radius: 24px;
             border: 1px solid var(--border);
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 1.5rem;
         }
 
-        table { width: 100%; border-collapse: collapse; }
-        
-        thead { background: rgba(0,0,0,0.2); }
-        th { 
-            text-align: left; 
-            padding: 1.2rem 1.5rem; 
-            color: var(--text-muted); 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            font-weight: 700;
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
+        .cal-day-name { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+        .cal-number { 
+            padding: 8px; border-radius: 10px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; 
         }
+        .cal-number:hover { background: rgba(255,255,255,0.05); }
+        .cal-number.active { background: var(--primary); color: white; font-weight: 700; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
 
-        tbody tr { border-bottom: 1px solid var(--border); transition: 0.2s; }
-        tbody tr:hover { background: rgba(255,255,255,0.02); }
-        tbody tr:last-child { border: none; }
-
-        td { padding: 1.2rem 1.5rem; font-size: 0.95rem; vertical-align: middle; }
-
-        /* Celda de Cliente */
-        .client-cell { display: flex; align-items: center; gap: 12px; }
-        .avatar-circle {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: white;
-        }
-
-        /* Badges de Estado */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-        .paid { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .cancelled { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-
-        /* Botones de Acción */
-        .action-btn {
-            background: rgba(255,255,255,0.05);
+        /* Columna Derecha: Timeline de Horas */
+        .timeline-view {
+            background: var(--surface);
+            border-radius: 24px;
             border: 1px solid var(--border);
-            color: var(--text-muted);
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: relative;
         }
-        .action-btn:hover { color: var(--primary); border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+
+        .timeline-header { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem; }
+
+        .hour-row {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            height: 60px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            position: relative;
+        }
+
+        .hour-label { font-size: 0.75rem; color: var(--text-muted); padding-top: 10px; }
+
+        /* Bloque de Reserva en el Timeline */
+        .booking-block {
+            position: absolute;
+            left: 100px;
+            right: 20px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.05) 100%);
+            border-left: 4px solid var(--primary);
+            border-radius: 12px;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .booking-info h4 { margin: 0; font-size: 0.9rem; font-family: 'Outfit'; }
+        .booking-info p { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
+
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* Botón de nueva reserva */
+        .btn-add {
+            background: var(--primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
 
     </style>
 </head>
@@ -164,154 +145,118 @@
     <?php include '../includes/sidebar_admin.php'; ?>
 
     <main>
-        <div class="header-area">
+        <div class="header-flex">
             <div>
-                <h1>Control de Reservas</h1>
-                <p style="color: var(--text-muted);">Listado total de transacciones y estados de activos.</p>
+                <h1>Gestión de Salones</h1>
+                <p style="color: var(--text-muted);">Monitorea la disponibilidad y gestiona los horarios.</p>
             </div>
-            <button style="background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer;">
-                <i class="fas fa-file-export"></i> Exportar Reporte
-            </button>
+            <button class="btn-add"><i class="fas fa-plus"></i> Nueva Reserva</button>
         </div>
 
-        <div class="table-tools">
-            <div class="search-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar por cliente, ID o espacio...">
+        <div class="room-selector">
+            <div class="room-card active">
+                <i class="fas fa-rocket"></i>
+                <h3>Sala VIP Marte</h3>
+                <span>Ocupación: 85%</span>
             </div>
-            <div class="filter-tabs">
-                <div class="tab active">Todas</div>
-                <div class="tab">Pagadas</div>
-                <div class="tab">Pendientes</div>
-                <div class="tab">Canceladas</div>
+            <div class="room-card">
+                <i class="fas fa-microphone"></i>
+                <h3>Sala de Podcast</h3>
+                <span>Ocupación: 40%</span>
+            </div>
+            <div class="room-card">
+                <i class="fas fa-laptop-code"></i>
+                <h3>Zona Coding</h3>
+                <span>Ocupación: 100%</span>
+            </div>
+            <div class="room-card">
+                <i class="fas fa-couch"></i>
+                <h3>Lounge Creativo</h3>
+                <span>Ocupación: 12%</span>
             </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID Reserva</th>
-                        <th>Cliente</th>
-                        <th>Espacio / Activo</th>
-                        <th>Fecha & Hora</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="font-weight: 700; color: var(--primary);">#WS-1024</td>
-                        <td>
-                            <div class="client-cell">
-                                <div class="avatar-circle" style="background: #ef4444;">LM</div>
-                                <div>
-                                    <div style="font-weight: 600;">Lionel Messi</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">l.messi@inter.miami</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600;">Sala VIP "Marte"</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Piso 12 - Sector A</div>
-                        </td>
-                        <td>
-                            <div>24 Dic, 2025</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">14:00 - 18:00 (4h)</div>
-                        </td>
-                        <td style="font-weight: 700;">$4,500.00</td>
-                        <td><span class="badge paid">Completado</span></td>
-                        <td>
-                            <button class="action-btn" title="Ver detalle"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn" title="Editar"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
+        <div class="calendar-container">
+            <aside class="mini-calendar">
+                <div class="cal-header">
+                    <span style="font-weight: 800; font-family: 'Outfit';">Diciembre 2025</span>
+                    <div>
+                        <i class="fas fa-chevron-left" style="cursor:pointer; margin-right: 10px;"></i>
+                        <i class="fas fa-chevron-right" style="cursor:pointer;"></i>
+                    </div>
+                </div>
+                <div class="cal-grid">
+                    <div class="cal-day-name">L</div><div class="cal-day-name">M</div><div class="cal-day-name">M</div>
+                    <div class="cal-day-name">J</div><div class="cal-day-name">V</div><div class="cal-day-name">S</div><div class="cal-day-name">D</div>
+                    
+                    <div class="cal-number">22</div><div class="cal-number">23</div><div class="cal-number">24</div>
+                    <div class="cal-number active">25</div><div class="cal-number">26</div><div class="cal-number">27</div><div class="cal-number">28</div>
+                    <div class="cal-number">29</div><div class="cal-number">30</div><div class="cal-number">31</div><div class="cal-number" style="opacity: 0.2;">1</div>
+                </div>
 
-                    <tr>
-                        <td style="font-weight: 700; color: var(--primary);">#WS-1025</td>
-                        <td>
-                            <div class="client-cell">
-                                <div class="avatar-circle" style="background: #38bdf8;">MZ</div>
-                                <div>
-                                    <div style="font-weight: 600;">Mark Zuckerberg</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">zuck@meta.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600;">Meta Lounge</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Piso 08 - Box 02</div>
-                        </td>
-                        <td>
-                            <div>25 Dic, 2025</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">09:00 - 12:00 (3h)</div>
-                        </td>
-                        <td style="font-weight: 700;">$1,200.00</td>
-                        <td><span class="badge pending">Pendiente</span></td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
+                <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+                    <h4 style="font-family: 'Outfit'; font-size: 0.9rem; margin-bottom: 1rem;">Próximas en Sala Marte</h4>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <div style="width: 4px; height: 30px; background: var(--accent); border-radius: 4px;"></div>
+                        <div>
+                            <div style="font-size: 0.8rem; font-weight: 600;">Reunión Directorio</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Mañana - 10:00 AM</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
 
-                    <tr>
-                        <td style="font-weight: 700; color: var(--primary);">#WS-1026</td>
-                        <td>
-                            <div class="client-cell">
-                                <div class="avatar-circle" style="background: #f59e0b;">EM</div>
-                                <div>
-                                    <div style="font-weight: 600;">Elon Musk</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">elon@spacex.com</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600;">Oficina "Starship"</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Piso 15 - Suite</div>
-                        </td>
-                        <td>
-                            <div>26 Dic, 2025</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">08:00 - 20:00 (Full Day)</div>
-                        </td>
-                        <td style="font-weight: 700;">$8,000.00</td>
-                        <td><span class="badge cancelled">Cancelado</span></td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn"><i class="fas fa-undo"></i></button>
-                        </td>
-                    </tr>
+            <section class="timeline-view">
+                <div class="timeline-header">
+                    <h2 style="font-family: 'Outfit'; font-size: 1.2rem; margin: 0;">Disponibilidad: Jueves 25 de Diciembre</h2>
+                </div>
 
-                    <tr>
-                        <td style="font-weight: 700; color: var(--primary);">#WS-1027</td>
-                        <td>
-                            <div class="client-cell">
-                                <div class="avatar-circle" style="background: #10b981;">LS</div>
-                                <div>
-                                    <div style="font-weight: 600;">Luis Scaloni</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">l.scaloni@afa.ar</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600;">Sala "La Scaloneta"</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Sector Estrategia</div>
-                        </td>
-                        <td>
-                            <div>27 Dic, 2025</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">10:00 - 14:00 (4h)</div>
-                        </td>
-                        <td style="font-weight: 700;">$2,800.00</td>
-                        <td><span class="badge paid">Completado</span></td>
-                        <td>
-                            <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                <div class="hour-row"><div class="hour-label">08:00 AM</div></div>
+                <div class="hour-row">
+                    <div class="hour-label">09:00 AM</div>
+                    <div class="booking-block" style="top: 10px; height: 110px; border-color: var(--accent);">
+                        <div class="booking-info">
+                            <h4>Mark Zuckerberg</h4>
+                            <p><i class="far fa-clock"></i> 09:00 - 11:00 AM</p>
+                        </div>
+                        <div class="status-dot" style="background: var(--accent); box-shadow: 0 0 10px var(--accent);"></div>
+                    </div>
+                </div>
+                <div class="hour-row"><div class="hour-label">10:00 AM</div></div>
+                <div class="hour-row"><div class="hour-label">11:00 AM</div></div>
+                <div class="hour-row">
+                    <div class="hour-label">12:00 PM</div>
+                    <div style="width: 100%; border-top: 2px dashed var(--danger); position: relative; top: 10px; opacity: 0.5;">
+                        <span style="position: absolute; right: 0; top: -12px; font-size: 0.6rem; color: var(--danger); font-weight: 800;">AHORA</span>
+                    </div>
+                </div>
+                <div class="hour-row">
+                    <div class="hour-label">01:00 PM</div>
+                    <div class="booking-block" style="top: 20px; height: 180px; border-color: var(--primary);">
+                        <div class="booking-info">
+                            <h4>Lionel Messi (Privado)</h4>
+                            <p><i class="far fa-clock"></i> 01:20 - 04:30 PM</p>
+                        </div>
+                        <div class="status-dot" style="background: var(--primary); box-shadow: 0 0 10px var(--primary);"></div>
+                    </div>
+                </div>
+                <div class="hour-row"><div class="hour-label">02:00 PM</div></div>
+                <div class="hour-row"><div class="hour-label">03:00 PM</div></div>
+                <div class="hour-row"><div class="hour-label">04:00 PM</div></div>
+                <div class="hour-row"><div class="hour-label">05:00 PM</div></div>
+            </section>
         </div>
     </main>
 
+    <script>
+        // Lógica simple para simular selección de salones
+        const cards = document.querySelectorAll('.room-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                cards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>

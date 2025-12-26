@@ -3,118 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WorkSpot Admin | Gestión de Miembros</title>
+    <title>WorkSpot Admin | Member Directory</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root { 
             --bg: #030712; 
-            --sidebar: #0f172a; 
-            --surface: rgba(30, 41, 59, 0.45); 
+            --surface: rgba(30, 41, 59, 0.4); 
             --primary: #6366f1; 
             --text-main: #f8fafc; 
             --text-muted: #94a3b8; 
             --border: rgba(255, 255, 255, 0.08); 
             --success: #10b981;
             --warning: #f59e0b;
-            --info: #0ea5e9;
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
         main { flex: 1; padding: 2.5rem 4rem; overflow-y: auto; }
 
-        /* --- Métricas Rápidas --- */
-        .user-stats {
+        /* --- Header & Search --- */
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+        .header-flex h1 { font-family: 'Outfit', sans-serif; font-size: 2.5rem; margin: 0; letter-spacing: -1.5px; }
+
+        .search-area { display: flex; gap: 1rem; align-items: center; }
+        .search-input {
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 12px 20px 12px 45px; border-radius: 16px; color: white;
+            width: 320px; outline: none; position: relative;
+        }
+        .search-wrapper { position: relative; }
+        .search-wrapper i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        .btn-invite { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-invite:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); }
+
+        /* --- Grid de Cards --- */
+        .user-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
         }
-        .mini-card {
+
+        .user-card {
             background: var(--surface);
-            padding: 1.5rem;
-            border-radius: 20px;
             border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .mini-card i {
-            width: 45px; height: 45px;
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        /* --- Toolbar --- */
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .header-flex h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; margin: 0; }
-
-        .search-box {
+            border-radius: 32px;
+            padding: 2rem;
             position: relative;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 10px 15px 10px 40px;
-            width: 300px;
-        }
-        .search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-        .search-box input { background: transparent; border: none; color: white; outline: none; width: 100%; }
-
-        /* --- Tabla de Usuarios --- */
-        .user-list { 
-            background: var(--surface); 
-            border-radius: 24px; 
-            border: 1px solid var(--border); 
-            overflow: hidden; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
+            overflow: hidden;
         }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 1.2rem 2rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
-        td { padding: 1rem 2rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-        tr:hover { background: rgba(255,255,255,0.02); }
 
-        /* Estilo de Perfil */
-        .profile-info { display: flex; align-items: center; gap: 12px; }
-        .avatar {
-            width: 40px; height: 40px;
-            border-radius: 12px;
+        .user-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Avatar & Status */
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+        
+        .avatar-box { position: relative; width: 80px; height: 80px; }
+        .avatar-main { 
+            width: 100%; height: 100%; border-radius: 24px; 
             display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: white;
-            position: relative;
+            font-size: 1.8rem; font-weight: 800; color: white;
+            background: var(--primary);
         }
-        .status-dot {
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            border: 2px solid var(--bg);
-            position: absolute; bottom: -2px; right: -2px;
+        
+        /* Efecto Glow Online */
+        .status-ring {
+            position: absolute; inset: -4px; border-radius: 28px;
+            border: 2px solid transparent;
         }
-        .dot-online { background: var(--success); }
-        .dot-offline { background: var(--text-muted); }
+        .online .status-ring { 
+            border-color: var(--success); 
+            animation: pulse-ring 2s infinite;
+        }
 
-        /* Badges de Planes */
-        .plan-badge {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 0.8; }
         }
-        .plan-enterprise { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-        .plan-pro { background: rgba(14, 165, 233, 0.15); color: #38bdf8; }
-        .plan-starter { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
 
-        .btn-action {
-            background: none; border: 1px solid var(--border);
-            color: var(--text-muted); padding: 8px; border-radius: 8px;
-            cursor: pointer; transition: 0.3s;
+        /* Información del Usuario */
+        .user-name { font-family: 'Outfit'; font-size: 1.4rem; margin: 0; color: #fff; }
+        .user-role { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 1.5rem 0; font-weight: 500; }
+
+        /* Badges */
+        .plan-pill {
+            padding: 6px 14px; border-radius: 50px; font-size: 0.7rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.05);
         }
-        .btn-action:hover { color: var(--primary); border-color: var(--primary); background: rgba(99,102,241,0.05); }
+        .enterprise { color: #818cf8; background: rgba(129, 140, 248, 0.1); }
+        .pro { color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
 
-        .btn-new { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        /* Stats Rápidos */
+        .card-stats {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+        }
+        .stat-item span { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .stat-item b { font-size: 1rem; color: #fff; }
+
+        /* Menú de Acciones */
+        .action-dots {
+            background: rgba(255,255,255,0.05); border: none; color: white;
+            width: 35px; height: 35px; border-radius: 10px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .action-dots:hover { background: var(--primary); }
+
     </style>
 </head>
 <body>
@@ -123,153 +129,139 @@
 
     <main>
         <div class="header-flex">
-            <h1>Gestión de Miembros</h1>
-            <div style="display: flex; gap: 1rem;">
-                <div class="search-box">
+            <div>
+                <h1>Directorio de Miembros</h1>
+                <p style="color: var(--text-muted); margin: 5px 0 0 0;">Gestioná y monitoreá a los usuarios de la comunidad.</p>
+            </div>
+            <div class="search-area">
+                <div class="search-wrapper">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Buscar miembro...">
+                    <input type="text" class="search-input" placeholder="Buscar por nombre o ID...">
                 </div>
-                <button class="btn-new"><i class="fas fa-user-plus"></i> Invitar</button>
+                <button class="btn-invite"><i class="fas fa-plus"></i> Invitar</button>
             </div>
         </div>
 
-        <div class="user-stats">
-            <div class="mini-card">
-                <i class="fas fa-users"></i>
-                <div>
-                    <h3 style="margin:0;">1,248</h3>
-                    <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Total Miembros</p>
+        <div class="user-grid">
+            
+            <div class="user-card online">
+                <div class="card-header">
+                    <div class="avatar-box">
+                        <div class="status-ring"></div>
+                        <div class="avatar-main">TG</div>
+                    </div>
+                    <button class="action-dots"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <h3 class="user-name">Tomás González</h3>
+                <p class="user-role">Fullstack Admin • ID: #001</p>
+                <span class="plan-pill enterprise">Enterprise</span>
+                
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span>Reservas</span>
+                        <b>14 Activas</b>
+                    </div>
+                    <div class="stat-item">
+                        <span>Últ. Login</span>
+                        <b>En línea</b>
+                    </div>
                 </div>
             </div>
-            <div class="mini-card">
-                <i class="fas fa-bolt"></i>
-                <div>
-                    <h3 style="margin:0;">84</h3>
-                    <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Activos Ahora</p>
+
+            <div class="user-card online">
+                <div class="card-header">
+                    <div class="avatar-box">
+                        <div class="status-ring"></div>
+                        <div class="avatar-main" style="background: #ef4444;">LM</div>
+                    </div>
+                    <button class="action-dots"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <h3 class="user-name">Lionel Messi</h3>
+                <p class="user-role">GOAT • ID: #010</p>
+                <span class="plan-pill enterprise">Enterprise</span>
+                
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span>Reservas</span>
+                        <b>45 Activas</b>
+                    </div>
+                    <div class="stat-item">
+                        <span>Últ. Login</span>
+                        <b>En línea</b>
+                    </div>
                 </div>
             </div>
-            <div class="mini-card">
-                <i class="fas fa-user-plus"></i>
-                <div>
-                    <h3 style="margin:0;">+12</h3>
-                    <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Nuevos (Este mes)</p>
+
+            <div class="user-card">
+                <div class="card-header">
+                    <div class="avatar-box">
+                        <div class="avatar-main" style="background: #0ea5e9;">LS</div>
+                    </div>
+                    <button class="action-dots"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <h3 class="user-name">Luis Scaloni</h3>
+                <p class="user-role">Estratega • ID: #102</p>
+                <span class="plan-pill pro">Pro Individual</span>
+                
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span>Reservas</span>
+                        <b>8 Activas</b>
+                    </div>
+                    <div class="stat-item">
+                        <span>Últ. Login</span>
+                        <b>Ayer, 18:45</b>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="user-list">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Miembro</th>
-                        <th>Email</th>
-                        <th>Plan Activo</th>
-                        <th>Última Conexión</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="profile-info">
-                                <div class="avatar" style="background: var(--primary);">
-                                    TG <span class="status-dot dot-online"></span>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Tomás González</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #001 (Admin)</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>tomas@workspot.com</td>
-                        <td><span class="plan-badge plan-enterprise">Enterprise</span></td>
-                        <td>Hace 2 minutos</td>
-                        <td>
-                            <button class="btn-action"><i class="fas fa-ellipsis-v"></i></button>
-                        </td>
-                    </tr>
+            <div class="user-card online">
+                <div class="card-header">
+                    <div class="avatar-box">
+                        <div class="status-ring"></div>
+                        <div class="avatar-main" style="background: #f59e0b;">AR</div>
+                    </div>
+                    <button class="action-dots"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <h3 class="user-name">Antonela Roccuzzo</h3>
+                <p class="user-role">Fashion Designer • ID: #103</p>
+                <span class="plan-pill pro">Pro Individual</span>
+                
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span>Reservas</span>
+                        <b>22 Activas</b>
+                    </div>
+                    <div class="stat-item">
+                        <span>Últ. Login</span>
+                        <b>En línea</b>
+                    </div>
+                </div>
+            </div>
 
-                    <tr>
-                        <td>
-                            <div class="profile-info">
-                                <div class="avatar" style="background: #ef4444;">
-                                    LM <span class="status-dot dot-online"></span>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Lionel Messi</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #101</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>l.messi@inter.miami</td>
-                        <td><span class="plan-badge plan-enterprise">Enterprise</span></td>
-                        <td>En línea</td>
-                        <td>
-                            <button class="btn-action"><i class="fas fa-ellipsis-v"></i></button>
-                        </td>
-                    </tr>
+            <div class="user-card">
+                <div class="card-header">
+                    <div class="avatar-box">
+                        <div class="avatar-main" style="background: #94a3b8;">SM</div>
+                    </div>
+                    <button class="action-dots"><i class="fas fa-ellipsis-h"></i></button>
+                </div>
+                <h3 class="user-name">Santi Maratea</h3>
+                <p class="user-role">Social Influencer • ID: #104</p>
+                <span class="plan-pill">Starter</span>
+                
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <span>Reservas</span>
+                        <b>2 Activas</b>
+                    </div>
+                    <div class="stat-item">
+                        <span>Últ. Login</span>
+                        <b>Hace 3 días</b>
+                    </div>
+                </div>
+            </div>
 
-                    <tr>
-                        <td>
-                            <div class="profile-info">
-                                <div class="avatar" style="background: #0ea5e9;">
-                                    LS <span class="status-dot dot-offline"></span>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Luis Scaloni</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #102</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>l.scaloni@afa.ar</td>
-                        <td><span class="plan-badge plan-pro">Pro Individual</span></td>
-                        <td>Ayer, 18:45</td>
-                        <td>
-                            <button class="btn-action"><i class="fas fa-ellipsis-v"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="profile-info">
-                                <div class="avatar" style="background: #f59e0b;">
-                                    AM <span class="status-dot dot-online"></span>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Antonela Roccuzzo</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #103</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>anto.roc@icloud.com</td>
-                        <td><span class="plan-badge plan-pro">Pro Individual</span></td>
-                        <td>En línea</td>
-                        <td>
-                            <button class="btn-action"><i class="fas fa-ellipsis-v"></i></button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="profile-info">
-                                <div class="avatar" style="background: #94a3b8;">
-                                    SM <span class="status-dot dot-offline"></span>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Santi Maratea</div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #104</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>santi@colecta.ar</td>
-                        <td><span class="plan-badge plan-starter">Starter</span></td>
-                        <td>Hace 3 días</td>
-                        <td>
-                            <button class="btn-action"><i class="fas fa-ellipsis-v"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </main>
 </body>
