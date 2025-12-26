@@ -1,8 +1,39 @@
 <?php
+require_once 'db.php';
 session_start();
+
+$error = "";
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Tu lógica de autenticación aquí
-    header("Location: dashboard.php");
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password'];
+
+    if ($email && $password) {
+        // Buscamos al usuario por email
+        $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        // Verificamos si existe y si la contraseña coincide con el hash
+        if ($user && password_verify($password, $user['password'])) {
+            // Guardamos datos esenciales en la sesión
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['nombre'] = $user['nombre'];
+            $_SESSION['rol'] = $user['rol'];
+
+            // Redirección según el rol
+            if ($user['rol'] === 'admin') {
+                header("Location: dashboard.php");
+            } else {
+                header("Location: home_user.php");
+            }
+            exit;
+        } else {
+            $error = "Email o contraseña incorrectos.";
+        }
+    } else {
+        $error = "Por favor, completá todos los campos.";
+    }
 }
 ?>
 
@@ -26,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --secondary: #0ea5e9;
             --gradient: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
             --glow: rgba(99, 102, 241, 0.2);
+            --error: #ef4444;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -41,7 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             overflow-x: hidden;
         }
 
-        /* Background Dinámico */
         .aurora {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
@@ -49,7 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             z-index: -1;
         }
 
-        /* Contenedor Principal (Más Ancho) */
         .main-wrapper {
             width: 100%;
             max-width: 1100px;
@@ -68,12 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
         }
 
-        /* Lado Izquierdo: Visual/Info */
         .info-side {
             padding: 4rem;
-            
-            background-size: cover;
-            background-position: center;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -95,7 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         .feature-item i { color: var(--primary); }
 
-        /* Lado Derecho: Formulario */
         .form-side {
             padding: 4rem;
             display: flex;
@@ -115,6 +140,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         h2 { font-family: 'Outfit'; font-size: 1.8rem; margin-bottom: 0.5rem; }
         .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2.5rem; }
+
+        /* Estilo Alerta Error */
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         .form-group { margin-bottom: 1.5rem; position: relative; }
         .form-group i {
@@ -166,7 +205,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         .footer-text a { color: var(--primary); text-decoration: none; font-weight: 600; }
 
-        /* Responsive */
         @media (max-width: 968px) {
             .split-card { grid-template-columns: 1fr; }
             .info-side { display: none; }
@@ -207,7 +245,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h2>Bienvenido de nuevo</h2>
                 <p class="subtitle">Ingresá tus datos para acceder a tu panel.</p>
 
-                <form method="POST">
+                <?php if ($error): ?>
+                    <div class="error-msg">
+                        <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="login.php">
                     <div class="form-group">
                         <input type="email" name="email" placeholder="Correo electrónico" required>
                         <i class="fas fa-envelope"></i>
@@ -220,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 0.85rem;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-muted);">
-                            <input type="checkbox" style="width: auto;"> Recordarme
+                            <input type="checkbox" name="remember" style="width: auto;"> Recordarme
                         </label>
                         <a href="#" style="color: var(--primary); text-decoration: none;">¿Olvidaste la clave?</a>
                     </div>

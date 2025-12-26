@@ -1,11 +1,43 @@
 <?php
+require_once 'db.php'; // Asegúrate de que db.php esté en el mismo directorio
+session_start();
+
+$error = "";
+$success = "";
+
 // Lógica de procesamiento
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Aquí iría tu conexión $pdo
-    $pass_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    // $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)");
-    // $stmt->execute([$_POST['nombre'], $_POST['email'], $pass_hash]);
-    header("Location: login.php");
+    $nombre = trim($_POST['nombre']);
+    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password'];
+
+    if (!empty($nombre) && !empty($email) && !empty($password)) {
+        
+        // 1. Verificar si el email ya existe
+        $checkEmail = $pdo->prepare("SELECT id FROM usuarios WHERE email = ?");
+        $checkEmail->execute([$email]);
+        
+        if ($checkEmail->rowCount() > 0) {
+            $error = "Este correo electrónico ya está registrado.";
+        } else {
+            // 2. Hashear la contraseña por seguridad
+            $pass_hash = password_hash($password, PASSWORD_DEFAULT);
+            
+            // 3. Insertar el nuevo usuario (Por defecto rol 'user' y nivel 'Basic')
+            try {
+                $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password, rol, nivel_acceso, creditos) VALUES (?, ?, ?, 'user', 'Basic', 0)");
+                $stmt->execute([$nombre, $email, $pass_hash]);
+                
+                // Éxito: Podés redirigir o mostrar un mensaje
+                $success = "¡Cuenta creada con éxito! Redirigiendo al login...";
+                header("refresh:3;url=login.php"); // Redirige tras 3 segundos
+            } catch (PDOException $e) {
+                $error = "Error en el registro: " . $e->getMessage();
+            }
+        }
+    } else {
+        $error = "Por favor, completá todos los campos.";
+    }
 }
 ?>
 
@@ -29,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --secondary: #0ea5e9;
             --gradient: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
             --glow: rgba(99, 102, 241, 0.2);
+            --error: #ef4444;
+            --success: #10b981;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -51,6 +85,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             z-index: -1;
         }
 
+        /* Estilos de Alertas */
+        .alert {
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .alert-error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); color: var(--error); }
+        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); }
+
         .main-wrapper {
             width: 100%;
             max-width: 1100px;
@@ -60,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         .split-card {
             display: grid;
-            grid-template-columns: 0.9fr 1.1fr; /* Invertimos un poco el peso para el formulario */
+            grid-template-columns: 0.9fr 1.1fr;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 32px;
@@ -69,11 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
         }
 
-        /* Lado Izquierdo: Branding & Trust */
         .info-side {
             padding: 4rem;
-            background-size: cover;
-            background-position: center;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -97,11 +141,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .benefit-card:hover { background: rgba(255, 255, 255, 0.06); }
-
         .benefit-card i { color: var(--secondary); margin-bottom: 0.5rem; font-size: 1.2rem; }
         .benefit-card p { font-size: 0.9rem; color: var(--text-muted); }
 
-        /* Lado Derecho: Formulario */
         .form-side {
             padding: 4rem;
             display: flex;
@@ -221,15 +263,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h1>Crear cuenta</h1>
                 <p class="subtitle">Completá los datos para empezar tu experiencia.</p>
 
-                <form method="POST">
+                <?php if ($error): ?>
+                    <div class="alert alert-error">
+                        <i class="fas fa-times-circle"></i> <?php echo $error; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($success): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> <?php echo $success; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="registro.php">
                     <div class="form-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" name="nombre" placeholder="Nombre completo" required>
+                        <input type="text" name="nombre" placeholder="Nombre completo" value="<?php echo isset($nombre) ? $nombre : ''; ?>" required>
                     </div>
 
                     <div class="form-group">
                         <i class="fas fa-envelope"></i>
-                        <input type="email" name="email" placeholder="Correo electrónico" required>
+                        <input type="email" name="email" placeholder="Correo electrónico" value="<?php echo isset($email) ? $email : ''; ?>" required>
                     </div>
 
                     <div class="form-group">
