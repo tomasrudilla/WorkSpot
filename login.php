@@ -1,11 +1,8 @@
 <?php
-// Lógica de procesamiento
+session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Aquí iría tu conexión $pdo
-    $pass_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    // $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password) VALUES (?, ?, ?)");
-    // $stmt->execute([$_POST['nombre'], $_POST['email'], $pass_hash]);
-    header("Location: login.php");
+    // Tu lógica de autenticación aquí
+    header("Location: dashboard.php");
 }
 ?>
 
@@ -14,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Cuenta | WorkSpot</title>
+    <title>Login Pro | WorkSpot</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -44,13 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             overflow-x: hidden;
         }
 
+        /* Background Dinámico */
         .aurora {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                        radial-gradient(circle at 20% 80%, rgba(14, 165, 233, 0.15) 0%, transparent 40%);
+            background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.15) 0%, transparent 40%);
             z-index: -1;
         }
 
+        /* Contenedor Principal (Más Ancho) */
         .main-wrapper {
             width: 100%;
             max-width: 1100px;
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         .split-card {
             display: grid;
-            grid-template-columns: 0.9fr 1.1fr; /* Invertimos un poco el peso para el formulario */
+            grid-template-columns: 1.1fr 0.9fr;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 32px;
@@ -69,37 +68,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
         }
 
-        /* Lado Izquierdo: Branding & Trust */
+        /* Lado Izquierdo: Visual/Info */
         .info-side {
             padding: 4rem;
+            
             background-size: cover;
             background-position: center;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             border-right: 1px solid var(--border);
         }
 
-        .info-side h2 {
+        .info-content h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 2.5rem;
-            line-height: 1.2;
-            margin-bottom: 2rem;
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
         }
 
-        .benefit-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-            border-radius: 20px;
-            margin-bottom: 1rem;
-            transition: 0.3s;
+        .feature-list { list-style: none; }
+        .feature-item { 
+            display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; 
+            color: var(--text-muted); font-size: 0.95rem;
         }
-
-        .benefit-card:hover { background: rgba(255, 255, 255, 0.06); }
-
-        .benefit-card i { color: var(--secondary); margin-bottom: 0.5rem; font-size: 1.2rem; }
-        .benefit-card p { font-size: 0.9rem; color: var(--text-muted); }
+        .feature-item i { color: var(--primary); }
 
         /* Lado Derecho: Formulario */
         .form-side {
@@ -113,19 +107,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-family: 'Outfit', sans-serif;
             font-size: 1.5rem;
             font-weight: 800;
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
             display: flex;
             align-items: center; gap: 10px;
         }
         .logo i { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        h1 { font-family: 'Outfit'; font-size: 2rem; margin-bottom: 0.5rem; }
-        .subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem; }
+        h2 { font-family: 'Outfit'; font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2.5rem; }
 
-        .form-group { margin-bottom: 1.2rem; position: relative; }
+        .form-group { margin-bottom: 1.5rem; position: relative; }
         .form-group i {
             position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-            color: var(--text-muted); font-size: 0.9rem;
+            color: var(--text-muted); transition: color 0.3s;
         }
 
         input {
@@ -135,19 +129,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border: 1px solid var(--border);
             border-radius: 14px;
             color: white;
-            transition: 0.3s;
+            font-size: 1rem;
+            transition: all 0.3s;
         }
 
         input:focus {
             outline: none;
-            border-color: var(--primary);
             background: rgba(255, 255, 255, 0.07);
+            border-color: var(--primary);
             box-shadow: 0 0 20px var(--glow);
         }
 
+        input:focus + i { color: var(--primary); }
+
         .btn-primary {
             width: 100%;
-            padding: 1.1rem;
+            padding: 1rem;
             border-radius: 14px;
             border: none;
             background: var(--gradient);
@@ -156,25 +153,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-weight: 700;
             font-size: 1rem;
             cursor: pointer;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             box-shadow: 0 15px 30px var(--glow);
-            transition: 0.3s;
+            transition: transform 0.3s, opacity 0.3s;
         }
 
         .btn-primary:hover { transform: translateY(-2px); opacity: 0.95; }
 
         .footer-text {
-            text-align: center; margin-top: 2rem;
+            text-align: center; margin-top: 2.5rem;
             font-size: 0.9rem; color: var(--text-muted);
         }
         .footer-text a { color: var(--primary); text-decoration: none; font-weight: 600; }
 
-        .back-home {
-            position: absolute; top: 40px; left: 40px;
-            color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
-            display: flex; align-items: center; gap: 8px;
-        }
-
+        /* Responsive */
         @media (max-width: 968px) {
             .split-card { grid-template-columns: 1fr; }
             .info-side { display: none; }
@@ -187,65 +179,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="aurora"></div>
 
-    <a href="index.php" class="back-home">
-        <i class="fas fa-arrow-left"></i> Volver
-    </a>
-
     <div class="main-wrapper">
         <div class="split-card">
             
             <div class="info-side">
-                <h2>Llevá tu trabajo al <span style="color: var(--secondary)">siguiente nivel.</span></h2>
-                
-                <div class="benefit-card">
-                    <i class="fas fa-rocket"></i>
-                    <p>Acceso instantáneo a todos nuestros espacios premium.</p>
+                <div class="info-header">
+                    <div class="logo"><i class="fas fa-terminal"></i> WorkSpot</div>
                 </div>
-                
-                <div class="benefit-card">
-                    <i class="fas fa-shield-alt"></i>
-                    <p>Seguridad de grado empresarial en tus datos.</p>
+                <div class="info-content">
+                    <h1>Impulsá tu <br><span style="color: var(--primary)">Productividad.</span></h1>
+                    <ul class="feature-list">
+                        <li class="feature-item"><i class="fas fa-check-circle"></i> Gestión de espacios en tiempo real</li>
+                        <li class="feature-item"><i class="fas fa-check-circle"></i> Acceso biométrico integrado</li>
+                        <li class="feature-item"><i class="fas fa-check-circle"></i> Networking con profesionales</li>
+                    </ul>
                 </div>
-
-                <div class="benefit-card">
-                    <i class="fas fa-users"></i>
-                    <p>Unite a una comunidad de +10k profesionales.</p>
+                <div class="info-footer">
+                    <p style="font-size: 0.8rem; opacity: 0.6">© 2025 WorkSpot Technology S.A.</p>
                 </div>
             </div>
 
             <div class="form-side">
-                <div class="logo">
+                <div class="mobile-logo logo" style="display: none;">
                     <i class="fas fa-terminal"></i> WorkSpot
                 </div>
-
-                <h1>Crear cuenta</h1>
-                <p class="subtitle">Completá los datos para empezar tu experiencia.</p>
+                
+                <h2>Bienvenido de nuevo</h2>
+                <p class="subtitle">Ingresá tus datos para acceder a tu panel.</p>
 
                 <form method="POST">
                     <div class="form-group">
-                        <i class="fas fa-user"></i>
-                        <input type="text" name="nombre" placeholder="Nombre completo" required>
-                    </div>
-
-                    <div class="form-group">
-                        <i class="fas fa-envelope"></i>
                         <input type="email" name="email" placeholder="Correo electrónico" required>
+                        <i class="fas fa-envelope"></i>
                     </div>
 
                     <div class="form-group">
+                        <input type="password" name="password" placeholder="Contraseña" required>
                         <i class="fas fa-lock"></i>
-                        <input type="password" name="password" placeholder="Contraseña segura" required>
                     </div>
 
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 1rem 0;">
-                        Al registrarte, aceptas nuestros <a href="#" style="color: var(--primary)">Términos y Condiciones</a>.
-                    </p>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 2rem; font-size: 0.85rem;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-muted);">
+                            <input type="checkbox" style="width: auto;"> Recordarme
+                        </label>
+                        <a href="#" style="color: var(--primary); text-decoration: none;">¿Olvidaste la clave?</a>
+                    </div>
 
-                    <button type="submit" class="btn-primary">Registrarse ahora</button>
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
                 </form>
 
                 <p class="footer-text">
-                    ¿Ya tenés cuenta? <a href="login.php">Iniciá sesión</a>
+                    ¿No tenés cuenta? <a href="registro.php">Registrate gratis</a>
                 </p>
             </div>
 
